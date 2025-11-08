@@ -1,0 +1,28 @@
+{
+  "name": "whatsapp-invoice-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp bot that generates invoices/receipts instantly",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "service": "pm2 start index.js --name whatsapp-invoice-bot",
+    "service:stop": "pm2 stop whatsapp-invoice-bot",
+    "service:logs": "pm2 logs whatsapp-invoice-bot",
+    "service:status": "pm2 status"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "invoice",
+    "receipt",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "whatsapp-web.js": "^1.23.0",
+    "qrcode-terminal": "^0.12.0",
+    "pdfkit": "^0.14.0"
+  }
+}
