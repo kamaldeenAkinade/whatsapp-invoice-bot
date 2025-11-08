@@ -1,39 +1,35 @@
-# Use Node.js 16 with all the needed tools
-FROM node:16-bullseye
+FROM ghcr.io/puppeteer/puppeteer:19.7.0
 
-# Set working directory
+USER root
+
 WORKDIR /app
 
-# Install latest Chromium package
+# Install dependencies for running WhatsApp
 RUN apt-get update \
     && apt-get install -y \
-    chromium \
-    chromium-sandbox \
     fonts-noto-color-emoji \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    NODE_ENV=production
-
-# Create necessary directories and set permissions
+# Create necessary directories
 RUN mkdir -p /app/.wwebjs_auth/session-client \
     && mkdir -p /app/invoices \
-    && chown -R node:node /app
+    && chown -R pptruser:pptruser /app
 
-# Copy package files first for better caching
-COPY --chown=node:node package*.json ./
+# Copy package files
+COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Install dependencies
+RUN npm install
 
 # Copy the rest of the application
-COPY --chown=node:node . .
+COPY . .
 
-# Switch to non-root user for security
-USER node
+# Set ownership
+RUN chown -R pptruser:pptruser /app
+
+# Switch to non-root user
+USER pptruser
 
 # Command to run the application
 CMD ["node", "index.js"]
