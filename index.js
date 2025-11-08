@@ -32,11 +32,12 @@ const client = new Client({
 
 // QR Code generation
 client.on('qr', (qr) => {
-    console.log('\n==========================================');
-    console.log('WHATSAPP INVOICE BOT');
-    console.log('==========================================\n');
-    console.log('Scan this QR code with your WhatsApp app:\n');
-    qrcode.generate(qr, { small: true });
+    console.log('\n========== WHATSAPP INVOICE BOT ==========');
+    console.log('Scan this QR code with WhatsApp:\n');
+    // Generate QR with larger size and clear borders
+    qrcode.generate(qr, { small: false });
+    console.log('\nIf QR code appears broken, use this string to generate it:');
+    console.log(qr);
     console.log('\n==========================================');
 });
 
