@@ -12,7 +12,7 @@ if (!fs.existsSync(invoicesDir)) {
     fs.mkdirSync(invoicesDir);
 }
 
-// Initialize WhatsApp client with improved stability settings
+// Initialize WhatsApp client with enhanced stability settings
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
@@ -24,9 +24,24 @@ const client = new Client({
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--disable-gpu'
+            '--single-process',
+            '--disable-gpu',
+            '--disable-extensions',
+            '--disable-software-rasterizer',
+            '--ignore-certificate-errors',
+            '--disable-features=IsolateOrigins,site-per-process'
         ],
-        timeout: 60000
+        timeout: 90000,
+        browserArgs: [
+            '--disable-web-security',
+            '--no-sandbox',
+            '--disable-web-security',
+            '--aggressive-cache-discard',
+            '--disable-cache',
+            '--disable-application-cache',
+            '--disable-offline-load-stale-cache',
+            '--disk-cache-size=0'
+        ]
     }
 });
 
