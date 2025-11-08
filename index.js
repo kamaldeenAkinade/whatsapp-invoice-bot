@@ -15,25 +15,22 @@ if (!fs.existsSync(invoicesDir)) {
 // Initialize WhatsApp client with enhanced stability settings
 const client = new Client({
     authStrategy: new LocalAuth({
+        clientId: 'invoice-bot-client',
         dataPath: '/app/.wwebjs_auth'
     }),
     puppeteer: {
         headless: true,
-        executablePath: '/usr/bin/chromium-browser',
+        executablePath: '/usr/bin/chromium',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
             '--disable-gpu',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--disable-software-rasterizer'
+            '--disable-software-rasterizer',
+            '--disable-extensions'
         ],
-        timeout: 100000
-    },
-    clientId: 'invoice-bot-client'
+        timeout: 120000
+    }
 });
 
 // QR Code generation
