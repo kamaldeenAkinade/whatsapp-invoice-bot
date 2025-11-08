@@ -14,35 +14,26 @@ if (!fs.existsSync(invoicesDir)) {
 
 // Initialize WhatsApp client with enhanced stability settings
 const client = new Client({
-    authStrategy: new LocalAuth(),
+    authStrategy: new LocalAuth({
+        dataPath: '/app/.wwebjs_auth'
+    }),
     puppeteer: {
         headless: true,
+        executablePath: '/usr/bin/chromium-browser',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-accelerated-2d-canvas',
+            '--disable-gpu',
             '--no-first-run',
             '--no-zygote',
             '--single-process',
-            '--disable-gpu',
-            '--disable-extensions',
-            '--disable-software-rasterizer',
-            '--ignore-certificate-errors',
-            '--disable-features=IsolateOrigins,site-per-process'
+            '--disable-software-rasterizer'
         ],
-        timeout: 90000,
-        browserArgs: [
-            '--disable-web-security',
-            '--no-sandbox',
-            '--disable-web-security',
-            '--aggressive-cache-discard',
-            '--disable-cache',
-            '--disable-application-cache',
-            '--disable-offline-load-stale-cache',
-            '--disk-cache-size=0'
-        ]
-    }
+        timeout: 100000
+    },
+    clientId: 'invoice-bot-client'
 });
 
 // QR Code generation
@@ -57,6 +48,19 @@ client.on('qr', (qr) => {
 });
 
 // Client ready
+// Handle errors
+client.on('auth_failure', (err) => {
+    console.error('Authentication failed:', err);
+});
+
+client.on('disconnected', (reason) => {
+    console.log('Client was disconnected:', reason);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 client.on('ready', () => {
     console.log('\n==========================================');
     console.log('Bot is ready and connected!');
