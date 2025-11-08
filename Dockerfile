@@ -1,48 +1,42 @@
-# Use Node.js 16 as base image (more stable for Puppeteer)
-FROM node:16-buster-slim
+# Use Node.js 16 with all the needed tools
+FROM node:16-bullseye
 
 # Set working directory
 WORKDIR /app
 
-# Install required dependencies
+# Install latest Chromium package
 RUN apt-get update \
     && apt-get install -y \
     chromium \
-    libgbm1 \
-    libnss3 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libdrm2 \
-    libxkbcommon0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libasound2 \
+    chromium-sandbox \
     fonts-noto-color-emoji \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    NODE_ENV=production
 
-# Create and set permissions for WhatsApp session data
+# Create necessary directories and set permissions
 RUN mkdir -p /app/.wwebjs_auth/session-client \
+    && mkdir -p /app/invoices \
     && chown -R node:node /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files first for better caching
+COPY --chown=node:node package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install only production dependencies
+RUN npm ci --only=production
 
-# Copy project files
-COPY . .
+# Copy the rest of the application
+COPY --chown=node:node . .
 
-# Switch to non-root user
+# Switch to non-root user for security
 USER node
+
+# Command to run the application
+CMD ["node", "index.js"]
 
 # Copy package files
 COPY package*.json ./

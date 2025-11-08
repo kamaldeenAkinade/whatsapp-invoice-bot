@@ -20,16 +20,24 @@ const client = new Client({
     }),
     puppeteer: {
         headless: true,
-        executablePath: '/usr/bin/chromium',
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-gpu',
             '--disable-software-rasterizer',
-            '--disable-extensions'
+            '--disable-extensions',
+            '--disable-notifications',
+            '--window-size=1920,1080',
+            '--remote-debugging-port=9222'
         ],
-        timeout: 120000
+        timeout: 120000,
+        ignoreHTTPSErrors: true,
+        defaultViewport: {
+            width: 1920,
+            height: 1080
+        }
     }
 });
 
