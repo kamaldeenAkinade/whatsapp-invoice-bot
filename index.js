@@ -12,7 +12,7 @@ if (!fs.existsSync(invoicesDir)) {
     fs.mkdirSync(invoicesDir);
 }
 
-// Initialize WhatsApp client with simplified stable settings
+// Initialize WhatsApp client with Chrome settings
 const client = new Client({
     authStrategy: new LocalAuth({
         clientId: 'invoice-bot-client',
@@ -20,7 +20,15 @@ const client = new Client({
     }),
     puppeteer: {
         headless: true,
-        args: ['--no-sandbox']
+        executablePath: '/usr/bin/google-chrome-stable',
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--disable-gpu'
+        ]
     }
 });
 
