@@ -1,46 +1,35 @@
-FROM node:16
+FROM node:16-slim
 
 WORKDIR /app
 
-# Install Chromium and other dependencies
+# Install latest Chromium package
 RUN apt-get update \
-    && apt-get install -y \
-    wget \
-    gnupg \
-    ca-certificates \
+    && apt-get install -y chromium \
     fonts-noto-color-emoji \
-    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set environment variables
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
-
-# Create a non-root user
-RUN useradd -m -d /app whatsapp-bot \
+    && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /app/.wwebjs_auth/session-client \
-    && mkdir -p /app/invoices \
-    && chown -R whatsapp-bot:whatsapp-bot /app
+    && mkdir -p /app/invoices
 
-# Copy package files
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Copy package files first (better caching)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install only production dependencies
+RUN npm ci --only=production
 
-# Copy the rest of the application
+# Copy rest of the application
 COPY . .
 
-# Set correct permissions
-RUN chown -R whatsapp-bot:whatsapp-bot /app
+# Create a non-root user
+RUN useradd -r -s /bin/false appuser \
+    && chown -R appuser:appuser /app
 
 # Switch to non-root user
-USER whatsapp-bot
+USER appuser
 
-# Command to run the application
+# Start the bot
 CMD ["node", "index.js"]
 
 # Copy package files
